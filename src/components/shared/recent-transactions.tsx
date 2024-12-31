@@ -1,7 +1,5 @@
-"use client"
-
-import { useState } from "react"
-import {
+import React from 'react'
+import { 
   Table,
   TableBody,
   TableCell,
@@ -9,126 +7,48 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 
-const transactions = [
-  {
-    id: "1",
-    payee: "Spotify",
-    amount: -9.99,
-    date: "2023-06-01",
-    category: "Entertainment",
-  },
-  {
-    id: "2",
-    payee: "Grocery Store",
-    amount: -65.47,
-    date: "2023-06-02",
-    category: "Food",
-  },
-  {
-    id: "3",
-    payee: "Gas Station",
-    amount: -40.00,
-    date: "2023-06-03",
-    category: "Transport",
-  },
-  {
-    id: "4",
-    payee: "Salary",
-    amount: 3000.00,
-    date: "2023-06-05",
-    category: "Income",
-  },
-  {
-    id: "5",
-    payee: "Amazon",
-    amount: -120.99,
-    date: "2023-06-07",
-    category: "Shopping",
-  },
+interface Transaction {
+  id: string
+  amount: number
+  date: string
+  description: string
+}
+
+interface RecentTransactionsProps {
+  limit?: number
+}
+
+const mockTransactions: Transaction[] = [
+  { id: '1', amount: 100, date: '2023-04-01', description: 'Grocery shopping' },
+  { id: '2', amount: 50, date: '2023-04-02', description: 'Gas station' },
+  { id: '3', amount: 200, date: '2023-04-03', description: 'Online purchase' },
+  { id: '4', amount: 75, date: '2023-04-04', description: 'Restaurant' },
+  { id: '5', amount: 150, date: '2023-04-05', description: 'Utility bill' },
 ]
 
-export function RecentTransactions() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [sortColumn, setSortColumn] = useState("date")
-  const [sortDirection, setSortDirection] = useState("desc")
-
-  const filteredTransactions = transactions.filter(
-    (transaction) =>
-      transaction.payee.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.category.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
-    if (a[sortColumn] < b[sortColumn]) return sortDirection === "asc" ? -1 : 1
-    if (a[sortColumn] > b[sortColumn]) return sortDirection === "asc" ? 1 : -1
-    return 0
-  })
-
-  const handleSort = (column) => {
-    if (column === sortColumn) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortColumn(column)
-      setSortDirection("asc")
-    }
-  }
+export function RecentTransactions({ limit = 5 }: RecentTransactionsProps) {
+  const transactions = mockTransactions.slice(0, limit)
 
   return (
-    <div>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Search transactions..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
-        />
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">
-              <Button variant="ghost" onClick={() => handleSort("date")}>
-                Date
-                {sortColumn === "date" && (sortDirection === "asc" ? " ↑" : " ↓")}
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button variant="ghost" onClick={() => handleSort("payee")}>
-                Payee
-                {sortColumn === "payee" && (sortDirection === "asc" ? " ↑" : " ↓")}
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button variant="ghost" onClick={() => handleSort("category")}>
-                Category
-                {sortColumn === "category" && (sortDirection === "asc" ? " ↑" : " ↓")}
-              </Button>
-            </TableHead>
-            <TableHead className="text-right">
-              <Button variant="ghost" onClick={() => handleSort("amount")}>
-                Amount
-                {sortColumn === "amount" && (sortDirection === "asc" ? " ↑" : " ↓")}
-              </Button>
-            </TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Date</TableHead>
+          <TableHead>Description</TableHead>
+          <TableHead className="text-right">Amount</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {transactions.map((transaction) => (
+          <TableRow key={transaction.id}>
+            <TableCell>{transaction.date}</TableCell>
+            <TableCell>{transaction.description}</TableCell>
+            <TableCell className="text-right">${transaction.amount.toFixed(2)}</TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedTransactions.map((transaction) => (
-            <TableRow key={transaction.id}>
-              <TableCell className="font-medium">{transaction.date}</TableCell>
-              <TableCell>{transaction.payee}</TableCell>
-              <TableCell>{transaction.category}</TableCell>
-              <TableCell className={`text-right ${transaction.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                ${Math.abs(transaction.amount).toFixed(2)}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 
